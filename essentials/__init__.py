@@ -87,3 +87,27 @@ class Essentials(IPlugin):
     @permissions.has_or_moderator('essentials.ac')
     async def add_coins(self, p, amount: int = 100):
         await p.add_coins(amount, stay=True)
+        
+    @commands.command('pay')
+    async def pay_coins(self, p, receiver, amount: int):
+        receiver = receiver.lower()
+        count = await Penguin.select('coins').where(Penguin.id == p.id).gino.first()
+        count = int(count[0])
+        receivercount = await Penguin.select('coins').where(Penguin.username == receiver).gino.first()
+        receivercount = int(receivercount[0])
+        prid = await Penguin.select('id').where(Penguin.username == receiver).gino.first()
+        prid = int(prid[0])
+        t = p.server.penguins_by_id[prid]
+        try:
+            if count < amount:
+                await p.send_xt('mm', 'You dont have enough coins to transfer', p.id)
+            else:
+                updatedcoins = count - amount
+                transfercoins = receivercount + amount
+                await p.add_coins(-amount, stay=True)
+                await t.add_coins(amount, stay=True) 
+                asyncio.sleep(2)
+                await p.send_xt('mm', f'successfully transfered {amount} to {receiver}', p.id
+                await t.send_xt('mm', f"You've received {amount} from {p.username}", prid)
+        except (KeyError):
+            await p.send_xt('mm', 'Player is not Online', p.id)
