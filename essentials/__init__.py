@@ -5,7 +5,7 @@ from houdini import permissions
 from houdini.data.room import Room
 from houdini.handlers.play.moderation import moderator_ban,moderator_kick
 import difflib
-
+#
 
 class Essentials(IPlugin):
     author = "Solero"
