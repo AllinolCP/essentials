@@ -63,7 +63,12 @@ class Essentials(IPlugin):
         player = player.lower()
         penguin_id = await Penguin.select('id').where(Penguin.username == player).gino.first()
         penguin_id = int(penguin_id[0])
-        await moderator_ban(p, penguin_id, hours=duration, comment=message)    
+        permbanned = p.server.penguins_by_id[penguin_id]
+        if duration == 0:
+            await Penguin.update.values(permaban=True).where(Penguin.username == player).gino.status()
+            await permbanned.close()
+        else:
+            await moderator_ban(p, penguin_id, hours=duration, comment=message)    
       except (StopIteration):
         await p.send_xt('mm', 'You need to specify a reason!', p.id)
 
