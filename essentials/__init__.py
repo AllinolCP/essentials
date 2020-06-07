@@ -26,6 +26,7 @@ class Essentials(IPlugin):
         await self.server.permissions.register('essentials.ban')  
         await self.server.permissions.register('essentials.kick')
         await self.server.permissions.register('essentials.tp')
+        await self.server.permissions.register('essentials.summon')
         self.items_by_name = {item.name: item for item in self.server.items.values()}
 
     @commands.command('room', alias=['jr'])
@@ -144,5 +145,17 @@ class Essentials(IPlugin):
         try:
             t = p.server.penguins_by_id[prid]
             await p.join_room(t.room)
+        except KeyError:
+            await p.send_xt('mm', 'Player is not Online', p.id)
+
+    @commands.command('summon')
+    @permissions.has_or_moderator('essentials.summon')
+    async def summon(self, p, player):
+        player = player.lower()
+        prid = await Penguin.select('id').where(Penguin.username == player).gino.first()
+        prid = int(prid[0])
+        try:
+            t = p.server.penguins_by_id[prid]
+            await t.join_room(p.room)
         except KeyError:
             await p.send_xt('mm', 'Player is not Online', p.id)
