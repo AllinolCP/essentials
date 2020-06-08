@@ -38,25 +38,25 @@ class Essentials(IPlugin):
             await p.send_xt('mm', 'Room does not exist', p.id)
 
     @commands.command('ban')
-    @permissions.has_or_moderator('essentials.ban')
-    async def ban_penguin(self, p, player: str, message: str, duration: int):
+    @permissions.has_or_moderator('essentials.ban') #Example !BAN Allinol NotCool 24
+    async def ban_penguin(self, p, player: str, message: str = 'Banned by a Moderator', duration: int): #added default reason so there is no error
       try:
         player = player.lower()
         penguin_id = await Penguin.select('id').where(Penguin.username == player).gino.first()
-        penguin_id = int(penguin_id[0])
+        if penguin_id == None:
+            await p.send_xt('mm', 'Player is not Valid!', p.id)
+            return
+        else:
+            penguin_id = int(penguin_id[0])
         banned = p.server.penguins_by_id[penguin_id]
         if duration == 0:
-            try:
-                await Penguin.update.values(permaban=True).where(Penguin.username == player).gino.status()
-                await banned.close()
-            except AttributeError:
-                await p.send_xt('mm', 'You need to specify a reason!', p.id)
+            await Penguin.update.values(permaban=True).where(Penguin.username == player).gino.status()
+            await banned.close()
+            return
         else:
-            try:
-                await moderator_ban(p, penguin_id, hours=duration, comment=message)   
-                await banned.close()                
-            except AttributeError:
-                await p.send_xt('mm', 'You need to specify a reason!', p.id)
+            await moderator_ban(p, penguin_id, hours=duration, comment=message)   
+            await banned.close()
+            return
       except RuntimeError:
         await p.send_xt('mm', 'You need to specify a reason!', p.id)
       except AttributeError:
