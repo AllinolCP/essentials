@@ -128,9 +128,12 @@ class Essentials(IPlugin):
                 if count < amount:
                     await p.send_xt('mm', 'You dont have enough coins to transfer', p.id)
                 else:
-                    await p.add_coins(-amount, stay=True)
-                    await t.add_coins(amount, stay=True) 
-                    asyncio.sleep(10)
+                    updatedamount = count - amount
+                    sentamount = receivercount + amount
+                    await p.update(coins=count - amount).apply()
+                    await t.update(coins=receivercount + amount).apply()
+                    await p.send_xt('cdu', updatedamount, updatedamount)
+                    await t.send_xt('cdu', sentamount, sentamount)
                     await p.send_xt('mm', f'successfully transfered {amount} to {receiver}', p.id)
                     await t.send_xt('mm', f"You've received {amount} from {p.username}", prid)
         except KeyError:
