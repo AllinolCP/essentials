@@ -39,7 +39,7 @@ class Essentials(IPlugin):
 
     @commands.command('ban')
     @permissions.has_or_moderator('essentials.ban') #Example !BAN Allinol NotCool 24
-    async def ban_penguin(self, p, player: str, message="Banned by a Moderator" , duration: int = 24): #added default reason so there is no error
+    async def ban_penguin(self, p, player: str, message:str , duration: int = 24):
       try:
         player = player.lower()
         penguin_id = await Penguin.select('id').where(Penguin.username == player).gino.first()
