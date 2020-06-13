@@ -57,24 +57,23 @@ class Essentials(IPlugin):
             await moderator_ban(p, penguin_id, hours=duration, comment=message)   
             await banned.close()
             return
-      except RuntimeError:
-        await p.send_xt('mm', 'You need to specify a reason!', p.id)
       except AttributeError:
         await p.send_xt('mm', 'Player is not Valid', p.id)
 
     @commands.command('unban')
     @permissions.has_or_moderator('essentials.ban')
     async def unban_penguin(self, p, player: str, duration: int = 24):
-      try:
-        player = player.lower()
-        penguin_id = await Penguin.select('id').where(Penguin.username == player).gino.first()
-        penguin_id = int(penguin_id[0])
-        if duration == 0:
-            await Penguin.update.values(permaban=False).where(Penguin.username == player).gino.status()
-        else:
-            await Ban.delete.where(Ban.penguin_id == penguin_id).gino.status()   
-      except RuntimeError:
-        await p.send_xt('mm', 'You need to specify a reason!', p.id)
+    player = player.lower() 
+    penguin_id = await Penguin.select('id').where(Penguin.username == player).gino.first()
+    if penguin_id == None:
+        await p.send_xt('mm', 'Player is not Valid!', p.id)
+        return
+    else:
+        penguin_id = int(penguin_id[0])       
+    if duration == 0:
+        await Penguin.update.values(permaban=False).where(Penguin.username == player).gino.status()
+    else:
+        await Ban.delete.where(Ban.penguin_id == penguin_id).gino.status()
 
 
     @commands.command('kick')
@@ -83,10 +82,14 @@ class Essentials(IPlugin):
         try:
             player = player.lower()
             penguin_id = await Penguin.select('id').where(Penguin.username == player).gino.first()
-            penguin_id = int(penguin_id[0])
+            if penguin_id == None:
+                await p.send_xt('mm', 'Player is not Valid!', p.id)
+                return
+            else:
+                penguin_id = int(penguin_id[0])
             await moderator_kick(p, penguin_id)
-        except (StopIteration):
-            await p.send_xt('mm', 'You need to specify a Player!', p.id)
+        except AttributeError:
+            await p.send_xt('mm', 'Player is not Valid', p.id)
 
 
     @commands.command('ai')
@@ -125,17 +128,21 @@ class Essentials(IPlugin):
             if amount <= 0:
                 await p.send_xt('mm', 'Please enter a valid number', p.id)
             else:
-                if count < amount:
-                    await p.send_xt('mm', 'You dont have enough coins to transfer', p.id)
+                if p.username == receiver:
+                    await p.send_xt('mm', "You can't transfer to yourself!", p.id)
+                    return
                 else:
-                    updatedamount = count - amount
-                    sentamount = receivercount + amount
-                    await p.update(coins=count - amount).apply()
-                    await t.update(coins=receivercount + amount).apply()
-                    await p.send_xt('cdu', updatedamount, updatedamount)
-                    await t.send_xt('cdu', sentamount, sentamount)
-                    await p.send_xt('mm', f'successfully transfered {amount} to {receiver}', p.id)
-                    await t.send_xt('mm', f"You've received {amount} from {p.username}", prid)
+                    if count < amount:
+                        await p.send_xt('mm', 'You dont have enough coins to transfer', p.id)
+                    else:
+                        updatedamount = count - amount
+                        sentamount = receivercount + amount
+                        await p.update(coins=count - amount).apply()
+                        await t.update(coins=receivercount + amount).apply()
+                        await p.send_xt('cdu', updatedamount, updatedamount)
+                        await t.send_xt('cdu', sentamount, sentamount)
+                        await p.send_xt('mm', f'successfully transfered {amount} to {receiver}', p.id)
+                        await t.send_xt('mm', f"You've received {amount} from {p.username}", prid)
         except KeyError:
             await p.send_xt('mm', 'Player is not Online', p.id)
             
