@@ -63,17 +63,17 @@ class Essentials(IPlugin):
     @commands.command('unban')
     @permissions.has_or_moderator('essentials.ban')
     async def unban_penguin(self, p, player: str, duration: int = 24):
-    player = player.lower() 
-    penguin_id = await Penguin.select('id').where(Penguin.username == player).gino.first()
-    if penguin_id == None:
-        await p.send_xt('mm', 'Player is not Valid!', p.id)
-        return
-    else:
-        penguin_id = int(penguin_id[0])       
-    if duration == 0:
-        await Penguin.update.values(permaban=False).where(Penguin.username == player).gino.status()
-    else:
-        await Ban.delete.where(Ban.penguin_id == penguin_id).gino.status()
+        player = player.lower() 
+        penguin_id = await Penguin.select('id').where(Penguin.username == player).gino.first()
+        if penguin_id == None:
+            await p.send_xt('mm', 'Player is not Valid!', p.id)
+            return
+        else:
+            penguin_id = int(penguin_id[0])       
+        if duration == 0:
+            await Penguin.update.values(permaban=False).where(Penguin.username == player).gino.status()
+        else:
+            await Ban.delete.where(Ban.penguin_id == penguin_id).gino.status()
 
 
     @commands.command('kick')
