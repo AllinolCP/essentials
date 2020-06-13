@@ -111,7 +111,6 @@ class Essentials(IPlugin):
     @commands.command('ac')
     @permissions.has_or_moderator('essentials.ac')
     async def add_coins(self, p, amount: int = 100):
-        if p.administrator or p.owners:
             await p.add_coins(amount, stay=True)  
             
     @commands.command('pay')
